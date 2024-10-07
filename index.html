@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Clone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e5ddd5;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 30%;
+            background-color: #ffffff;
+            border-right: 1px solid #dcdcdc;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            padding: 16px;
+            margin: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar img {
+            height: 30px;
+            margin-right: 8px;
+        }
+
+        .search-container {
+            padding: 10px;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dcdcdc;
+            border-radius: 5px;
+        }
+
+        .chat {
+            padding: 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat:hover {
+            background-color: #f0f0f0;
+        }
+
+        .chat-name {
+            margin-left: 10px;
+        }
+
+        .chat-container {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            background-color: black;
+            /* Black background */
+        }
+
+        .chat-header {
+            padding: 16px;
+            background-color: rgba(245, 245, 245, 0.9);
+            border-bottom: 1px solid #dcdcdc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background-color: transparent;
+        }
+
+        .message {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+
+        .message.user1 {
+            text-align: left;
+            color: #000;
+            background-color: #e1ffc7;
+        }
+
+        .message.user2 {
+            text-align: right;
+            color: #fff;
+            background-color: #25D366;
+            display: inline-block;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 16px;
+            border-top: 1px solid #dcdcdc;
+            background-color: rgba(245, 245, 245, 0.9);
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #dcdcdc;
+            border-radius: 5px;
+        }
+
+        button {
+            margin-left: 8px;
+            padding: 10px 15px;
+            border: none;
+            background-color: #25D366;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #128C7E;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .icon-label {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .welcome-modal {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            flex-direction: column;
+            text-align: center;
+            animation: fadeIn 1s;
+        }
+
+        .welcome-message {
+            font-size: 50px;
+            /* Increased font size */
+            margin-bottom: 20px;
+            color: #ff5722;
+            /* Colorful text */
+            animation: slideIn 1s, colorChange 2s infinite, fire 1s infinite;
+            /* Fire animation */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100px);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes colorChange {
+            0% {
+                color: #ff5722;
+            }
+
+            50% {
+                color: #3f51b5;
+            }
+
+            100% {
+                color: #ff5722;
+            }
+        }
+
+        @keyframes fire {
+            0% {
+                text-shadow: 0 0 10px rgba(255, 87, 34, 0.8), 0 0 20px rgba(255, 87, 34, 0.6);
+            }
+
+            100% {
+                text-shadow: 0 0 20px rgba(255, 87, 34, 0.8), 0 0 30px rgba(255, 87, 34, 0.6);
+            }
+        }
+
+        .recording {
+            display: none;
+            color: #fff;
+            background-color: #25D366;
+            padding: 5px;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="welcome-modal" id="welcomeModal">
+        <div class="welcome-message">Welcome to Mini WhatsApp</div>
+    </div>
+    <div class="app">
+        <div class="sidebar">
+            <h2>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo">
+                Chats
+            </h2>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search chats..." oninput="filterChats()">
+            </div>
+            <div class="chat" onclick="selectChat('Jitu')">
+                <span class="chat-name">Jitu</span>
+            </div>
+            <div class="chat" onclick="selectChat('Suhani')">
+                <span class="chat-name">Suhani</span>
+            </div>
+            <div class="chat" onclick="selectChat('Aman')">
+                <span class="chat-name">Aman</span>
+            </div>
+            <div class="chat" onclick="selectChat('Harry')">
+                <span class="chat-name">Harry</span>
+            </div>
+            <div class="chat" onclick="selectChat('Subham')">
+                <span class="chat-name">Subham</span>
+            </div>
+            <div class="chat" onclick="selectChat('Rohan')">
+                <span class="chat-name">Rohan</span>
+            </div>
+        </div>
+        <div class="chat-container">
+            <div class="chat-header" id="chatHeader" style="display: none;">
+                <h2 id="chat-name">Select a chat</h2>
+                <div class="header-icons" id="headerIcons" style="display: none;">
+                    <img src="https://img.icons8.com/ios-filled/50/25D366/video-call.png" alt="Video Call" class="icon"
+                        onclick="startVideoCall()">
+                    <span class="icon-label">Video</span>
+                    <img src="https://img.icons8.com/ios-filled/50/25D366/phone.png" alt="Voice Call" class="icon"
+                        onclick="startVoiceCall()">
+                    <span class="icon-label">Voice</span>
+                    <img src="https://img.icons8.com/ios-filled/50/25D366/more.png" alt="More Settings" class="icon"
+                        onclick="showMoreSettings()">
+                    <span class="icon-label">More Settings</span>
+                </div>
+            </div>
+            <div class="messages" id="messages"></div>
+            <div class="input-container" id="inputContainer" style="display: none;">
+                <input type="text" id="message-input" placeholder="Type a message..." onkeypress="checkEnter(event)" />
+                <button onclick="sendMessage()">Send</button>
+                <button onclick="toggleRecording()">
+                    <img src="https://img.icons8.com/ios-filled/50/25D366/microphone.png" alt="Voice Record"
+                        class="icon">
+                </button>
+                <span id="recording" class="recording">Recording...</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentChat = '';
+        const chatHistory = {};
+        const voiceMessages = {};
+        let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+
+        window.onload = function () {
+            document.getElementById('welcomeModal').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('welcomeModal').style.display = 'none';
+            }, 3000); // Hide the welcome modal after 3 seconds
+        };
+
+        function selectChat(chatName) {
+            currentChat = chatName;
+            document.getElementById('chat-name').innerText = chatName;
+            document.getElementById('chatHeader').style.display = 'flex';
+            document.getElementById('headerIcons').style.display = 'flex';
+            document.getElementById('inputContainer').style.display = 'flex';
+            displayMessages(chatName);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            if (!chatHistory[currentChat]) {
+                chatHistory[currentChat] = [];
+            }
+            chatHistory[currentChat].push({ text: messageText, type: 'text' });
+
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', 'user2');
+            messageDiv.innerText = messageText;
+
+            document.getElementById('messages').appendChild(messageDiv);
+            input.value = ''; // Clear input field
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight; // Scroll to bottom
+        }
+
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+                event.preventDefault(); // Prevent default form submission
+            }
+        }
+
+        function displayMessages(chatName) {
+            document.getElementById('messages').innerHTML = ''; // Clear current messages
+            const combinedMessages = (chatHistory[chatName] || []).concat(voiceMessages[chatName] || []);
+            combinedMessages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                if (message.type === 'text') {
+                    messageDiv.classList.add('message', 'user1');
+                    messageDiv.innerText = message.text;
+                } else {
+                    messageDiv.classList.add('message', 'user2');
+                    const audioElement = document.createElement('audio');
+                    audioElement.controls = true;
+                    audioElement.src = message.src;
+                    messageDiv.appendChild(audioElement);
+                }
+                document.getElementById('messages').appendChild(messageDiv);
+            });
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight; // Scroll to bottom
+        }
+
+        function filterChats() {
+            const filter = document.getElementById('search-input').value.toLowerCase();
+            const chats = document.querySelectorAll('.chat');
+            chats.forEach(chat => {
+                const chatName = chat.querySelector('.chat-name').innerText.toLowerCase();
+                if (chatName.includes(filter)) {
+                    chat.style.display = '';
+                } else {
+                    chat.style.display = 'none';
+                }
+            });
+        }
+
+        function startVideoCall() {
+            alert("Starting a video call with " + currentChat);
+        }
+
+        function startVoiceCall() {
+            alert("Starting a voice call with " + currentChat);
+        }
+
+        function showMoreSettings() {
+            const clearChat = confirm("Do you want to clear the chat with " + currentChat + "?");
+            if (clearChat) {
+                chatHistory[currentChat] = [];
+                voiceMessages[currentChat] = []; // Clear voice messages
+                displayMessages(currentChat);
+            }
+        }
+
+        function toggleRecording() {
+            if (isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                document.getElementById('recording').style.display = 'none';
+            } else {
+                startRecording();
+                isRecording = true;
+                document.getElementById('recording').style.display = 'block';
+            }
+        }
+
+        async function startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+
+                // Store the voice message in the chat history
+                if (!voiceMessages[currentChat]) {
+                    voiceMessages[currentChat] = [];
+                }
+                voiceMessages[currentChat].push({ src: audioUrl, type: 'audio' });
+
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'user2');
+                const audioElement = document.createElement('audio');
+                audioElement.controls = true;
+                audioElement.src = audioUrl;
+                messageDiv.appendChild(audioElement);
+
+                document.getElementById('messages').appendChild(messageDiv);
+                document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight; // Scroll to bottom
+            };
+
+            mediaRecorder.start();
+        }
+    </script>
+</body>
+
+</html>
